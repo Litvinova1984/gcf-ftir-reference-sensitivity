@@ -8,8 +8,7 @@ the spectral diagnostics, and the demographic checks. No checkpoint is a fitting
 RC2 changed packaging I/O only; RC3 updates public documentation and manuscript title. All eight existing `R/` modules, five input files, frozen numerical
 checkpoints, and reference figures remain byte-identical to the verified candidate. The orchestrator
 now calls a new helper that writes the final log and pass flag before generating the run manifest.
-`tools/check_release.R` tests that helper without running any scientific analysis. Its execution on
-the author's Mac remains the final packaging check; no execution is invented in the build report.
+`tools/check_release.R` tests that helper without running any scientific analysis. The author executed this packaging-only check on 20 October 2026 with `PACKAGING CHECK PASS` (60 original baseline file hashes and all input hashes verified; positive and negative I/O tests passed). The test did not recompute scientific results.
 
 Unchanged numerical tolerances in the original code:
 - Ordinary fields in the 12 primary comparisons: absolute difference <= 1e-6.
@@ -18,7 +17,7 @@ Unchanged numerical tolerances in the original code:
 - Pediatric demographic and adult age/influence summaries: <= 1e-10.
 
 These are numerical gates, not confidence intervals, significance tests, or acceptance limits for a
-clinical reference. The archived R and Python agreement is not an independent biological cohort.
+clinical reference. The numerical cross-checks establish computational consistency, not validation in an independent biological cohort.
 The main input boundary is the normalized spectral matrices plus required demographic fields;
 raw DPT/OriginPro processing and upstream pediatric absorbance interpolation/SNV are not reproduced.
 

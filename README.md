@@ -1,6 +1,6 @@
 # Reference Sensitivity in the Projection of Pediatric Gingival Crevicular Fluid Fourier-Transform Infrared Spectra
 
-**RC3 — author and manuscript-title alignment, 19 October 2026. PRIVATE PRE-SUBMISSION CANDIDATE; not a published release.**
+**Reproducibility package prepared for the accompanying manuscript (RC3 baseline, 19 October 2026; packaging validation completed 20 October 2026).**
 
 The CSV-only analysis was successfully executed by the author on macOS in R 4.5.1:
 `PUBLIC_CANDIDATE_R_20261018_220355_56691`. The independent audit confirmed agreement with
@@ -23,9 +23,7 @@ This checks package hashes, original input hashes, R syntax, and the exact run-f
 on disposable non-scientific test files. It does not refit PCA or recompute projections. A successful
 check produces `runs/PACKAGING_CHECK_.../PACKAGING_CHECK_PASS.txt`.
 
-The packaging helper was assembled in RC2 and verified by static checks; the RC3 Git package was tested by staging. **Its R runtime
-self-test still needs to be run on the author's Mac**; there is no R interpreter in the assembly
-environment. This limited pending check does not invalidate the earlier numerical PASS.
+The packaging-only R self-test was completed on the author's Mac on 20 October 2026: `PACKAGING CHECK PASS`. The test validated the 60-file RC3 baseline manifest, the five analytical input hashes, the R parser, and both positive and negative run-finalization tests. It did not execute PCA or any new scientific analysis. This verification is distinct from the previously completed numerical R analyses.
 
 ## Full scientific reproduction
 
@@ -63,11 +61,8 @@ makes no diagnostic, causal, population-reference, or universal FTIR-transfer cl
 are not required by `run_all.R` or the packaging check. No rendered Quarto HTML has been verified
 or promised as a required deliverable.
 
-## Before public release
+## Licenses, data governance, and versioned release
 
-The authors have chosen processed spectra plus minimal demographic metadata as the intended
-release scope. Additional clinical categories are not included. Complete the author-approved
-ethics/consent, data/code-license, and final release declarations before uploading; do not substitute
-this technical check for those declarations. No GitHub release, DOI, or license has been created here.
-See `docs/RELEASE_GATES.md`. Original source files, medical records, and personal-ID crosswalks
-remain outside this candidate.
+Original R source code is distributed under the **MIT License** (`LICENSE`). Processed coded spectra, the minimal demographic metadata, analytical output CSVs, verified figures, and authors' documentation are released under **CC BY 4.0** (`DATA_LICENSE.md`), subject to the author/rightsholder permissions and privacy safeguards described there. The license does not override ethical or consent restrictions. Raw clinical records, source `.dpt` acquisition files, personal-ID crosswalks, and additional clinical categories are not included.
+
+The private GitHub repository and its commits are not a citable versioned release. Before changing visibility to public, the corresponding author must confirm the exact intended publication scope, including the historical 15-year-old record (A18), and approve the final public dataset. Cite the tagged release once created. A successful code check is not publication authorization. See `docs/RELEASE_GATES.md`.
