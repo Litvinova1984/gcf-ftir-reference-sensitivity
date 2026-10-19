@@ -1,0 +1,11 @@
+file,field,data_type,description,release_note
+adult_SNV_18x793.csv,adult_id,string,A01..A18,no direct identifiers; A18 historical minor
+adult_SNV_18x793.csv,wn_*,float (793),SNV z-score per row,exact positions are in wavenumbers_exact.csv
+pediatric_SNV_25x793.csv,pediatric_id,string/int,1..25 (lexical row order),external spectra only
+pediatric_SNV_25x793.csv,wn_*,float (793),SNV after adult-grid interpolation,dimensionless
+wavenumbers_exact.csv,wavenumber_cm_1,double,"cm^-1, descending",full precision; not rounded names
+adult_demographics_candidate.csv,age_years,integer,15..70,pending privacy approval
+adult_demographics_candidate.csv,sex,categorical,F/M,coded source recording
+adult_demographics_candidate.csv,primary_adult_member,categorical,yes/no,A18=no
+pediatric_demographics_candidate.csv,age_years,integer,6..17,pending child-data approval
+pediatric_demographics_candidate.csv,sex,categorical,F/M,source recording

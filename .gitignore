@@ -1,0 +1,21 @@
+# Candidate is private; .gitignore is NOT privacy protection.
+runs/
+.Rproj.user/
+.Rhistory
+.RData
+*.opj
+*.opju
+*.dpt
+*.xlsx
+*.rds
+*.zip
+*.rar
+*.bak
+*.log
+RESTRICTED_REVIEW_DO_NOT_PUBLISH/
+PRIVATE_*
+**/.DS_Store
+
+# Required numerical checkpoint: analytical IDs and Q values only, no age/sex or clinical fields.
+# Keep the general PRIVATE_* rule; whitelist this one verified dependency only.
+!verification/frozen_R_20261018/PRIVATE_pediatric_Q_decomposition_K3.csv

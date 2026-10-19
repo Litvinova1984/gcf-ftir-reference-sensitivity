@@ -1,0 +1,47 @@
+#!/usr/bin/env Rscript
+# Private staging candidate for public SNV-to-results reproduction.
+# This MUST NOT be uploaded before the ethics/privacy/license gates are signed off.
+for (f in c("R/00_core.R","R/01_execute.R","R/02_verify.R","R/03_figures.R",
+            "R/04_diagnostics.R","R/05_metadata.R","R/06_extension_verify.R","R/07_release_io.R"))
+ if (!file.exists(f)) stop("Execute from candidate repository root; missing ",f)
+root<-normalizePath(".",mustWork=TRUE)
+source(file.path(root,"R","00_core.R"))
+source(file.path(root,"R","01_execute.R"))
+source(file.path(root,"R","02_verify.R"))
+source(file.path(root,"R","03_figures.R"))
+source(file.path(root,"R","04_diagnostics.R"))
+source(file.path(root,"R","05_metadata.R"))
+source(file.path(root,"R","06_extension_verify.R"))
+source(file.path(root,"R","07_release_io.R"))
+run_id<-paste0("PUBLIC_CANDIDATE_R_",format(Sys.time(),"%Y%m%d_%H%M%S"),"_",Sys.getpid())
+out<-file.path(root,"runs",run_id)
+dir.create(out,recursive=TRUE,showWarnings=FALSE)
+logf<-file.path(out,"run_log.txt")
+logline<-function(s){line<-paste(format(Sys.time(),"%Y-%m-%d %H:%M:%S"),"|",s)
+  message(line);cat(line,"\n",file=logf,append=TRUE)}
+passed<-tryCatch({
+ logline("Checking public candidate input integrity")
+ verify_candidate_input_hashes(root)
+ logline("Refitting same frozen adult compositions from normalized CSVs")
+ compute_results(root,out)
+ checks<-verify_all(root,out)
+ if (nrow(checks)!=12L)stop("Expected exactly 12 independently frozen table comparisons")
+ logline("PASS 12 downstream numerical checks against verified 2026-10-17 R outputs")
+ render_figures_from_outputs(out)
+ logline("Computing previously frozen K=3 diagnostic extensions")
+ diag_out<-file.path(out,"diagnostics")
+ run_diagnostics_public(root,out,diag_out)
+ verify_diagnostics_public(root,diag_out)
+ logline("PASS spectrum localization and center/subspace decomposition checks")
+ run_metadata_public(root,out,file.path(out,"metadata"))
+ logline("PASS linked age/sex summary checks")
+ writeLines(capture.output(sessionInfo()),file.path(out,"sessionInfo.txt"))
+  codes<-unique(c("run_all.R",file.path("R",list.files(file.path(root,"R"),pattern="[.]R$"))))
+ write_csv(data.frame(file=codes,sha256=vapply(file.path(root,codes),file_sha256,character(1))),
+           file.path(out,"CODE_SHA256.csv"))
+ finalize_verified_run(root,out,run_id,logline)
+ TRUE
+},error=function(e){logline(paste("FAILED",conditionMessage(e)))
+  writeLines(conditionMessage(e),file.path(out,"RUN_FAILED.txt"));FALSE})
+if (!passed)stop("Reproduction failed; inspect ",logf)
+message("VERIFIED PUBLIC-CANDIDATE DOWNSTREAM R RUN: ",out)

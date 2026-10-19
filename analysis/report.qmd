@@ -1,0 +1,46 @@
+---
+title: "MDPI Data — normalized-input reproducibility report"
+subtitle: "Private candidate; not cleared for release"
+format: html
+execute:
+  echo: false
+---
+
+```{r}
+latest <- readLines("../runs/LATEST_VERIFIED_PUBLIC.txt",warn=FALSE)[1]
+run_dir <- file.path("..","runs",latest)
+stopifnot(file.exists(file.path(run_dir,"PUBLIC_CANDIDATE_VERIFICATION_PASS.txt")))
+knitr::opts_chunk$set(echo=FALSE)
+```
+
+## Reference and projection overview
+
+```{r}
+knitr::kable(read.csv(file.path(run_dir,"summary_metrics.csv")), digits=6)
+```
+
+## Five reference configurations
+
+```{r}
+knitr::kable(read.csv(file.path(run_dir,"model_comparison_K3.csv"))[,1:9], digits=4)
+```
+
+## K=2–5 sensitivity
+
+```{r}
+knitr::kable(read.csv(file.path(run_dir,"model_sensitivity_K2_K5.csv")),digits=4)
+```
+
+## Spectral localization and decomposition
+
+```{r}
+knitr::kable(read.csv(file.path(run_dir,"diagnostics","tables","Table_D1_Q_decomposition_K3.csv"))[,1:8],digits=4)
+```
+
+## Metadata descriptive checks
+
+```{r}
+knitr::kable(read.csv(file.path(run_dir,"metadata","AGGREGATED_K3_demographic_R.csv")),digits=4)
+```
+
+This report is a numerical audit starting from normalized analytical matrices, not from original GCF sampling or adult raw DPT files.
