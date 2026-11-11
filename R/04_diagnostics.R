@@ -118,11 +118,37 @@ write.csv(bychild,file.path(out,'tables','PRIVATE_pediatric_Q_decomposition_K3.c
 
 # Two monochrome-friendly spectral windows using the same full-precision grid.
 colors <- c('#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd')
-linetypes <- c(1,1,2,4,3)
+# One distinguishable line style per model (including black-and-white print).
+linetypes <- c(1,2,3,4,5)
 names(colors) <- names(linetypes) <- names(models)
 model_labels <- c('Adult n=17 (fixed)','Without A04 (n=16)',
                   'Without A07 (n=16)','Without A04/A07 (n=15)',
                   'Historical n=18 (mixed age)')
+
+# Figure 4 reviewer clarification: two different markers, computed from the
+# EXISTING K=3 residual curves (not from q = Q_fraction).
+# Circle: absolute maximum of the PRIMARY mean squared residual curve.
+# Triangle + arrow: maximum POSITIVE difference (without A04 minus primary).
+primary_spectral <- all_spectra[['adult17_main']]
+a04_spectral <- all_spectra[['adult16_no_A04']]
+if (!identical(primary_spectral$wavenumber_cm_1,
+               a04_spectral$wavenumber_cm_1))
+  stop('Figure 4 marker grid mismatch')
+mark_base_i <- which.max(primary_spectral$mean_r_squared)
+mark_change_i <- which.max(a04_spectral$mean_r_squared -
+                          primary_spectral$mean_r_squared)
+mark_base_wn <- primary_spectral$wavenumber_cm_1[mark_base_i]
+mark_base_y <- primary_spectral$mean_r_squared[mark_base_i]
+mark_change_wn <- primary_spectral$wavenumber_cm_1[mark_change_i]
+mark_change_y0 <- primary_spectral$mean_r_squared[mark_change_i]
+mark_change_y1 <- a04_spectral$mean_r_squared[mark_change_i]
+if (abs(mark_base_wn - 991.29517) > 0.05 ||
+    primary_spectral$window[mark_base_i] != 'fingerprint' ||
+    abs(mark_change_wn - 2921.81358) > 0.05 ||
+    primary_spectral$window[mark_change_i] != 'high' ||
+    mark_change_y1 <= mark_change_y0)
+  stop('Figure 4 annotation coordinates disagree with verified K=3 outputs')
+
 plot_spectral <- function() {
   op <- par(no.readonly=TRUE)
   on.exit(par(op))
@@ -135,20 +161,46 @@ plot_spectral <- function() {
       ss <- ss[ss$window==wins,]
       if (first) {
         ymax <- max(vapply(all_spectra,function(s) max(s$mean_r_squared[s$window==wins]),numeric(1)))
+        panel_title <- if (wins=='high') {
+          expression('3400-2800 ' * plain(cm)^{-1})
+        } else {
+          expression('1800-870 ' * plain(cm)^{-1})
+        }
         par(mar=c(3.4,5.2,2.5,1.0))
-        plot(ss$wavenumber_cm_1,ss$mean_r_squared,type='l',col=colors[nm],lwd=2.0,
+        plot(ss$wavenumber_cm_1,ss$mean_r_squared,type='l',col=colors[nm],lty=linetypes[nm],lwd=2.0,
              xlim=range(ss$wavenumber_cm_1)[2:1],ylim=c(0,ymax*1.05),
-             ylab='Mean squared residual (SNV^2)',xlab='',cex.lab=0.85,
-             main=if(wins=='high')'3400–2800 cm-1' else '1800–870 cm-1')
+             ylab=expression('Mean squared residual (' * plain(SNV)^2 * ')'),
+             xlab='',cex.lab=0.91,
+             main=panel_title)
         grid(nx=NA,ny=NULL,col='gray90')
         first <- FALSE
       } else lines(ss$wavenumber_cm_1,ss$mean_r_squared,col=colors[nm],lty=linetypes[nm],lwd=2.0)
     }
-    mtext('Wavenumber (cm-1), descending',side=1,line=2.3,cex=0.85)
+    if (wins=='high') {
+      # The arrow compares TWO model curves at the wavenumber of maximum delta.
+      graphics::arrows(mark_change_wn,mark_change_y0,
+                       mark_change_wn,mark_change_y1,
+                       code=2,length=0.10,col='black',lwd=1.25)
+      graphics::points(mark_change_wn,mark_change_y1,pch=24,
+                       bg='white',col='black',cex=1.22,lwd=1.25)
+      graphics::text(mark_change_wn,mark_change_y1,
+                     labels=bquote(.(sprintf('%.2f',mark_change_wn))~plain(cm)^{-1}),
+                     pos=2,offset=0.6,cex=0.82,col='black')
+    } else {
+      # This circle is an ABSOLUTE primary-curve maximum, not a model difference.
+      graphics::abline(v=mark_base_wn,lty=3,col='grey45',lwd=0.85)
+      graphics::points(mark_base_wn,mark_base_y,pch=21,
+                       bg='white',col='black',cex=1.22,lwd=1.25)
+      graphics::text(mark_base_wn,mark_base_y,
+                     labels=bquote(.(sprintf('%.2f',mark_base_wn))~plain(cm)^{-1}),
+                     pos=2,offset=0.6,cex=0.82,col='black')
+    }
+    mtext(expression('Wavenumber (' * plain(cm)^{-1} * '), descending'),
+          side=1,line=2.3,cex=0.91)
   }
   par(mar=c(0,0,0,0));plot.new()
   legend('center',legend=model_labels,col=colors,lty=linetypes,lwd=2.2,
-         ncol=3,bty='n',cex=0.82)
+         ncol=3,bty='n',cex=0.92)
 }
 
 plot_decomp <- function() {
@@ -160,7 +212,9 @@ plot_decomp <- function() {
   par(mar=c(5.0,10.7,4.0,1.2))
   yy <- rev(seq_len(nrow(sub)))
   xlim <- c(min(-20,sum(pmin(bars,0),na.rm=TRUE)*1.2),max(400,max(rowSums(pmax(bars,0)))*1.3))
-  plot(NA,xlim=xlim,ylim=c(0.5,nrow(sub)+0.6),axes=FALSE,xlab='Change in mean Q, 25 fixed pediatric spectra (SNV^2)',ylab='')
+  plot(NA,xlim=xlim,ylim=c(0.5,nrow(sub)+0.6),axes=FALSE,
+       xlab=expression('Change in mean Q, 25 fixed pediatric spectra (' * plain(SNV)^2 * ')'),
+       ylab='')
   abline(v=0,col='gray35')
   axis(1);axis(2,at=yy,labels=model_labels[-1],las=1,cex.axis=.85)
   for (i in seq_len(nrow(sub))) {

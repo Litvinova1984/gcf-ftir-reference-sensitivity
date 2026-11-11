@@ -30,7 +30,7 @@ render_figures_from_outputs <- function(out_dir, figure_subdirectory = "figures"
       ylim=c(0,55),ylab="Adult reference variance (%)",
       main="Adult-only PCA: first five components",cex.main=0.95)
     graphics::text(pos,pct+2, labels=sprintf("%.1f",pct),cex=0.8)
-    graphics::mtext(sprintf("PC1–PC3: %.2f%% (n = 17)",sum(pct[1:3])),side=3,line=0,cex=0.9)
+    graphics::mtext(sprintf("PC1-PC3: %.2f%% (n = 17)",sum(pct[1:3])),side=3,line=0,cex=0.9)
   })
 
   save_pair("Figure2_pediatric_Qfraction_reference_sensitivity",function() {
